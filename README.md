@@ -3,10 +3,13 @@
 <div align="center">
 
 ![LearniX](https://img.shields.io/badge/LearniX-EdTech%20Platform-blue?style=for-the-badge)
-![Version](https://img.shields.io/badge/version-1.0.0-green?style=for-the-badge)
+![Version](https://img.shields.io/badge/version-1.1.0-green?style=for-the-badge)
 ![License](https://img.shields.io/badge/license-MIT-yellow?style=for-the-badge)
+![Build](https://img.shields.io/badge/build-passing-brightgreen?style=for-the-badge)
 
 **A scalable, AI-augmented learning management system designed for modern education**
+
+**🚀 New in v1.1: CourseCard, ProgressBar, and Badge components with animations!**
 
 [Features](#-features) • [Tech Stack](#-tech-stack) • [Quick Start](#-quick-start) • [API Documentation](#-api-documentation) • [Architecture](#-architecture)
 
