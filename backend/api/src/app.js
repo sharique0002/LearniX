@@ -27,15 +27,20 @@ app.use(cors({
   credentials: true
 }));
 
-// Rate limiting
+// Rate limiting - Fix: Apply to all routes, not just /auth
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100
+  max: 100,
+  message: { error: 'Too many requests, please try again later.' },
+  standardHeaders: true,
+  legacyHeaders: false
 });
+app.use('/api', limiter);
 app.use('/auth', limiter);
 
-// Parsing middleware
-app.use(express.json());
+// Parsing middleware - Fix: Add body size limit to prevent payload attacks
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 
 // Health check
