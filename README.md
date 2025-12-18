@@ -6,10 +6,13 @@
 ![Version](https://img.shields.io/badge/version-1.1.0-green?style=for-the-badge)
 ![License](https://img.shields.io/badge/license-MIT-yellow?style=for-the-badge)
 ![Build](https://img.shields.io/badge/build-passing-brightgreen?style=for-the-badge)
+![Security](https://img.shields.io/badge/security-enhanced-orange?style=for-the-badge)
 
 **A scalable, AI-augmented learning management system designed for modern education**
 
 **🚀 New in v1.1: CourseCard, ProgressBar, and Badge components with animations!**
+
+**🔒 Security Update: Improved rate limiting and authentication middleware**
 
 [Features](#-features) • [Tech Stack](#-tech-stack) • [Quick Start](#-quick-start) • [API Documentation](#-api-documentation) • [Architecture](#-architecture)
 
