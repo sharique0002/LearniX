@@ -1,0 +1,129 @@
+version: '3.8'
+
+services:
+  # Node.js API
+  api:
+    build:
+      context: ./backend/api
+      dockerfile: Dockerfile
+    container_name: learnix-api
+    ports:
+      - "4000:4000"
+    environment:
+      - NODE_ENV=production
+      - PORT=4000
+      - DATABASE_URL=postgresql://learnix:learnix_password@postgres:5432/learnix
+      - MONGODB_URI=mongodb://mongodb:27017/learnix
+      - REDIS_URL=redis://redis:6379
+      - FRONTEND_URL=http://localhost:3000
+      - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET:-change-this-in-production}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET:-change-this-in-production}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongodb:
+        condition: service_started
+      redis:
+        condition: service_started
+    networks:
+      - learnix-network
+    restart: unless-stopped
+
+  # Python AI Service
+  ai-service:
+    build:
+      context: ./backend/ai-service
+      dockerfile: Dockerfile
+    container_name: learnix-ai
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - DEBUG=false
+      - MONGODB_URI=mongodb://mongodb:27017/learnix
+      - REDIS_URL=redis://redis:6379
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - FRONTEND_URL=http://localhost:3000
+      - API_URL=http://api:4000
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - learnix-network
+    restart: unless-stopped
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: learnix-postgres
+    environment:
+      - POSTGRES_DB=learnix
+      - POSTGRES_USER=learnix
+      - POSTGRES_PASSWORD=learnix_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/migrations:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+    networks:
+      - learnix-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U learnix -d learnix" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # MongoDB Database
+  mongodb:
+    image: mongo:7
+    container_name: learnix-mongodb
+    volumes:
+      - mongo_data:/data/db
+    ports:
+      - "27017:27017"
+    networks:
+      - learnix-network
+    restart: unless-stopped
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: learnix-redis
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    networks:
+      - learnix-network
+    restart: unless-stopped
+
+  # Next.js Frontend (for production)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: learnix-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:4000
+      - NEXT_PUBLIC_AI_URL=http://localhost:5000
+    depends_on:
+      - api
+      - ai-service
+    networks:
+      - learnix-network
+    restart: unless-stopped
+    profiles:
+      - production
+
+networks:
+  learnix-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  mongo_data:
+  redis_data:
